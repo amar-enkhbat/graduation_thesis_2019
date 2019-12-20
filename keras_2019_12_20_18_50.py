@@ -240,7 +240,7 @@ cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, 
 training_start_time = datetime.now()
 print("Training start date and time:", training_start_time)
 
-history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
+history = model.fit(X_train, y_train, batch_size=batch_size, epochs=2, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
 training_end_time = datetime.now()
 print("Training end date and time:", training_end_time)
 model.save(results_path + "/model/model.h5")
@@ -250,4 +250,4 @@ with open(results_path + "/train_hist", "wb") as file:
 
 print("Training start date and time:", training_start_time)
 print("Training end date and time:", training_end_time)
-print("Training duration:", training_start_time - training_end_time)
+print("Training duration:", training_end_time - training_start_time)
