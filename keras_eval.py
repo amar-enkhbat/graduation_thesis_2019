@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Testing
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
