@@ -36,15 +36,6 @@ except OSError:
     print("Directory %s already exists. Creating new directory under %s(2)" % (results_path, results_path))
     os.mkdir(results_path+ "(2)")
 
-
-# In[3]:
-
-
-with open(results_path + "/readme.txt", "w") as file:
-    file.write("Training data: 1-81 64 channels, Validation data: 82-108 4 channels")
-    file.write("LSTM->GRU")
-
-
 # # Training data 64 channel 1-81
 
 # In[4]:
@@ -240,7 +231,7 @@ cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, 
 training_start_time = datetime.now()
 print("Training start date and time:", training_start_time)
 
-history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
+history = model.fit(X_train, y_train, batch_size=batch_size, epochs=1, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
 training_end_time = datetime.now()
 print("Training end date and time:", training_end_time)
 model.save(results_path + "/model/model.h5")
@@ -251,3 +242,10 @@ with open(results_path + "/train_hist", "wb") as file:
 print("Training start date and time:", training_start_time)
 print("Training end date and time:", training_end_time)
 print("Training duration:", training_end_time - training_start_time)
+
+
+with open(results_path + "/readme.txt", "w") as file:
+    file.write("Training data: 1-81 64 channels\n")
+    file.write("Validation data: 82-108 4 channels\n")
+    file.write("1 layer Conv3D, 1 Layer GRU\n")
+    file.write("Training time: " + str(training_end_time - training_start_time) + "\n")
