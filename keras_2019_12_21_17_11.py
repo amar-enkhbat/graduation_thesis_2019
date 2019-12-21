@@ -1,9 +1,5 @@
 
 # coding: utf-8
-
-# In[1]:
-
-
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -14,12 +10,9 @@ import pickle
 import tensorflow as tf
 import numpy as np
 import time
+
 random_state = 33
 np.random.seed(random_state)
-
-
-# In[2]:
-
 
 from datetime import datetime
 now = datetime.now()
@@ -27,9 +20,8 @@ now = now.strftime("%Y_%m_%d_%H_%M")
 
 results_path = "./results/keras_" + now
 print("Saving results in:", results_path)
-
 print()
-import os
+
 try:
     os.mkdir(results_path)
 except OSError:
@@ -37,9 +29,6 @@ except OSError:
     os.mkdir(results_path+ "(2)")
 
 # # Training data 64 channel 1-81
-
-# In[4]:
-
 
 dataset_dir = "./dataset/preprocessed_dataset/"
 
@@ -51,15 +40,7 @@ X_train = X_train.reshape(-1, 10, 10, 11, 1)
 print("Dataset shape:", X_train.shape)
 print("Labels shape:", y_train.shape)
 
-
-# In[5]:
-
-
 print(X_train[0, 2].reshape(10, 11))
-
-
-# In[6]:
-
 
 from sklearn.preprocessing import OneHotEncoder
 ohe = OneHotEncoder(sparse=False)
@@ -69,9 +50,6 @@ y_train = ohe.fit_transform(y_train)
 
 
 # # Validation data 4-channel 82-108 
-
-# In[7]:
-
 
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
@@ -84,44 +62,15 @@ X_valid = X_valid.reshape(-1, 10, 10, 11, 1)
 print("Dataset shape:", X_valid.shape)
 print("Labels shape:", y_valid.shape)
 
-
-# In[8]:
-
-
 print(X_valid[0, 2].reshape(10, 11))
-
-
-# In[9]:
-
 
 y_valid = y_valid.reshape(-1, 1)
 y_valid = ohe.transform(y_valid)
 
-
-# In[10]:
-
-
 with open(results_path + "/ohe", "wb") as file:
     pickle.dump(ohe, file)
 
-
-# # Split data
-
-# In[11]:
-
-
-# from sklearn.model_selection import train_test_split
-# X_train, X_test, y_train, y_test = train_test_split(dataset, labels, test_size=0.25, random_state=random_state)
-# print("Train dataset shape:", X_train.shape)
-# print("Train label shape:", y_train.shape)
-# print("Test dataset shape:", X_test.shape)
-# print("Test label shape:", y_test.shape)
-
-
 # # Model
-
-# In[12]:
-
 
 dropout_prob = 0.5
 n_labels = y_train.shape[1]
@@ -129,18 +78,10 @@ training_epochs = 10
 batch_size = 300
 learning_rate = 1e-4
 
-
-# In[13]:
-
-
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Activation, Dropout, Input, LSTM, Conv2D, Conv3D, GRU
 from tensorflow.keras.layers import Reshape, Flatten, Softmax
 from tensorflow.keras.optimizers import Adam
-
-
-# In[14]:
-
 
 def model(input_shape):
     """
@@ -157,7 +98,7 @@ def model(input_shape):
     # conv_1 = Conv3D(filters=32, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
     # conv_2 = Conv3D(filters=64, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(conv_1)
     # conv_3 = Conv3D(filters=128, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(conv_2)
-    conv_3 = Conv3D(filters=128, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
+    conv_3 = Conv3D(filters=128, kernel_size=(1, 3, 3), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
     shape = conv_3.get_shape().as_list()
     
     pool_2_flat = Reshape([shape[1], shape[2]*shape[3]*shape[4]])(conv_3)
@@ -179,54 +120,16 @@ def model(input_shape):
     model = Model(inputs = X_input, outputs = y_posi)
     return model
 
-
-# In[15]:
-
-
 model = model(input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3], X_train.shape[4]))
 opt = Adam(lr=learning_rate)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 
-
-# In[16]:
-
-
-model.summary()
-
-
-# In[17]:
-
-
-# from tensorflow.keras import backend as K
-
-# def recall_m(y_true, y_pred):
-#         true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-#         possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-#         recall = true_positives / (possible_positives + K.epsilon())
-#         return recall
-
-# def precision_m(y_true, y_pred):
-#         true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-#         predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-#         precision = true_positives / (predicted_positives + K.epsilon())
-#         return precision
-
-# def f1_m(y_true, y_pred):
-#     precision = precision_m(y_true, y_pred)
-#     recall = recall_m(y_true, y_pred)
-#     return 2*((precision*recall)/(precision+recall+K.epsilon()))
-
-
-# In[18]:
-
+print(model.summary())
 
 from tensorflow.keras.callbacks import ModelCheckpoint
 checkpoint_path = results_path + "/model/cp.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1)
-
-
-# In[19]:
 
 training_start_time = datetime.now()
 print("Training start date and time:", training_start_time)
@@ -243,11 +146,10 @@ print("Training start date and time:", training_start_time)
 print("Training end date and time:", training_end_time)
 print("Training duration:", training_end_time - training_start_time)
 
-
 with open(results_path + "/readme.txt", "w") as file:
     file.write("Training data: 1-81 64 channels\n")
     file.write("Validation data: 82-108 4 channels\n")
-    file.write("1 layer Conv3D, 1 Layer GRU\n")
+    file.write("1 layer Conv3D filter (1, 3, 3), 1 Layer GRU\n")
     file.write("Training start time: " + str(training_start_time) + "\n")
     file.write("Training end time: " + str(training_end_time) + "\n")
     file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
