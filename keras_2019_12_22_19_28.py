@@ -179,7 +179,7 @@ print("Training duration:", training_end_time - training_start_time)
 with open(results_path + "/readme.txt", "w") as file:
     file.write("Training data: first 75%, 4 channels\n")
     file.write("Validation data: last 25%, 4 channels\n")
-    file.write("1 layer Conv3D filter (1, 3, 3), 1 Layer GRU\n")
+    file.write("1 layer Conv3D filter (1, 1, 1), 1 Layer GRU\n")
     file.write("Training start time: " + str(training_start_time) + "\n")
     file.write("Training end time: " + str(training_end_time) + "\n")
     file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
