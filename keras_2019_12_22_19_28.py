@@ -30,51 +30,83 @@ except OSError:
 
 # # Training data 64 channel 1-81
 
-dataset_dir = "./dataset/preprocessed_dataset/"
+# dataset_dir = "./dataset/preprocessed_dataset/"
 
-with open(dataset_dir+"1_81_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
-    X_train = pickle.load(fp)
-with open(dataset_dir+"1_81_shuffle_labels_3D_win_10.pkl", "rb") as fp:
-    y_train = pickle.load(fp)
-X_train = X_train.reshape(-1, 10, 10, 11, 1)
-print("Dataset shape:", X_train.shape)
-print("Labels shape:", y_train.shape)
+# with open(dataset_dir+"1_81_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
+#     X_train = pickle.load(fp)
+# with open(dataset_dir+"1_81_shuffle_labels_3D_win_10.pkl", "rb") as fp:
+#     y_train = pickle.load(fp)
+# X_train = X_train.reshape(-1, 10, 10, 11, 1)
+# print("Dataset shape:", X_train.shape)
+# print("Labels shape:", y_train.shape)
+
+# print(X_train[0, 2].reshape(10, 11))
+
+# from sklearn.preprocessing import OneHotEncoder
+# ohe = OneHotEncoder(sparse=False)
+
+# y_train = y_train.reshape(-1, 1)
+# y_train = ohe.fit_transform(y_train)
+
+
+# # Validation data 4-channel 82-108 
+
+# dataset_dir = "./dataset/preprocessed_dataset/"
+# result_dir = "./results/"
+
+# with open(dataset_dir+"82_108_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
+#     X_valid = pickle.load(fp)
+# with open(dataset_dir+"82_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
+#     y_valid = pickle.load(fp)
+# X_valid = X_valid.reshape(-1, 10, 10, 11, 1)
+# print("Dataset shape:", X_valid.shape)
+# print("Labels shape:", y_valid.shape)
+
+# print(X_valid[0, 2].reshape(10, 11))
+
+# y_valid = y_valid.reshape(-1, 1)
+# y_valid = ohe.transform(y_valid)
+
+# with open(results_path + "/ohe", "wb") as file:
+#     pickle.dump(ohe, file)
+
+dataset_dir = "./dataset/preprocessed_dataset/"
+result_dir = "./results/"
+
+with open(dataset_dir+"1_108_shuffle_dataset_3D_win_10_4_channels.pkl", "rb") as fp:
+    dataset = pickle.load(fp)
+with open(dataset_dir+"1_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
+    labels = pickle.load(fp)
+dataset = dataset.reshape(-1, 10, 10, 11, 1)
+print("Dataset shape:", dataset.shape)
+print("Labels shape:", labels.shape)
+
+from sklearn.model_selection import train_test_split
+X_train, X_valid, y_train, y_valid = train_test_split(dataset, labels, test_size=0.25, random_state=random_state, shuffle=False)
+print("Train dataset shape:", X_train.shape)
+print("Train label shape:", y_train.shape)
+print("Test dataset shape:", X_valid.shape)
+print("Test label shape:", y_valid.shape)
 
 print(X_train[0, 2].reshape(10, 11))
+print(X_valid[0, 2].reshape(10, 11))
+
 
 from sklearn.preprocessing import OneHotEncoder
 ohe = OneHotEncoder(sparse=False)
 
 y_train = y_train.reshape(-1, 1)
 y_train = ohe.fit_transform(y_train)
-
-
-# # Validation data 4-channel 82-108 
-
-dataset_dir = "./dataset/preprocessed_dataset/"
-result_dir = "./results/"
-
-with open(dataset_dir+"82_108_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
-    X_valid = pickle.load(fp)
-with open(dataset_dir+"82_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
-    y_valid = pickle.load(fp)
-X_valid = X_valid.reshape(-1, 10, 10, 11, 1)
-print("Dataset shape:", X_valid.shape)
-print("Labels shape:", y_valid.shape)
-
-print(X_valid[0, 2].reshape(10, 11))
-
 y_valid = y_valid.reshape(-1, 1)
 y_valid = ohe.transform(y_valid)
 
 with open(results_path + "/ohe", "wb") as file:
     pickle.dump(ohe, file)
 
-# # Model
+# Model
 
 dropout_prob = 0.5
 n_labels = y_train.shape[1]
-training_epochs = 10
 batch_size = 300
 learning_rate = 1e-4
 
@@ -132,7 +164,6 @@ checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1)
 
 training_start_time = datetime.now()
-
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
 training_end_time = datetime.now()
 
@@ -146,8 +177,8 @@ print("Training end date and time:", training_end_time)
 print("Training duration:", training_end_time - training_start_time)
 
 with open(results_path + "/readme.txt", "w") as file:
-    file.write("Training data: 1-81 64 channels\n")
-    file.write("Validation data: 82-108 4 channels\n")
+    file.write("Training data: first 75%, 4 channels\n")
+    file.write("Validation data: last 25%, 4 channels\n")
     file.write("1 layer Conv3D filter (1, 3, 3), 1 Layer GRU\n")
     file.write("Training start time: " + str(training_start_time) + "\n")
     file.write("Training end time: " + str(training_end_time) + "\n")
