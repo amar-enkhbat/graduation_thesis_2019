@@ -127,9 +127,10 @@ def model(input_shape):
     """
     X_input = Input(shape = input_shape)
     
-    conv_1 = Conv3D(filters=32, kernel_size=(1, 3, 3), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
-    conv_2 = Conv3D(filters=64, kernel_size=(1, 3, 3), padding="same", strides=(1, 1, 1), activation="elu")(conv_1)
-    conv_3 = Conv3D(filters=128, kernel_size=(1, 3, 3), padding="same", strides=(1, 1, 1), activation="elu")(conv_2)
+    # conv_1 = Conv3D(filters=32, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
+    # conv_2 = Conv3D(filters=64, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(conv_1)
+    # conv_3 = Conv3D(filters=128, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(conv_2)
+    conv_3 = Conv3D(filters=128, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
     shape = conv_3.get_shape().as_list()
     
     pool_2_flat = Reshape([shape[1], shape[2]*shape[3]*shape[4]])(conv_3)
@@ -137,8 +138,10 @@ def model(input_shape):
     fc_drop = Dropout(dropout_prob)(fc)
     
     lstm_in = Reshape([10, 1024])(fc_drop)
-    lstm_1 = LSTM(units=1024, return_sequences=True, unit_forget_bias=True, dropout=dropout_prob)(lstm_in)
-    rnn_output = LSTM(units=1024, return_sequences=False, unit_forget_bias=True)(lstm_1)
+    # lstm_1 = LSTM(units=1024, return_sequences=True, unit_forget_bias=True, dropout=dropout_prob)(lstm_in)
+    # rnn_output = LSTM(units=1024, return_sequences=False, unit_forget_bias=True)(lstm_1)
+    # lstm_1 = GRU(units=1024, return_sequences=True, dropout=dropout_prob)(lstm_in)
+    rnn_output = GRU(units=1024, return_sequences=False)(lstm_in)
     
     shape_rnn_out = rnn_output.get_shape().as_list()
     fc_out = Dense(shape_rnn_out[1], activation="elu")(rnn_output)
@@ -176,7 +179,7 @@ print("Training duration:", training_end_time - training_start_time)
 with open(results_path + "/readme.txt", "w") as file:
     file.write("Training data: first 75%, 4 channels\n")
     file.write("Validation data: last 25%, 4 channels\n")
-    file.write("3 Conv3D layers, filters: [32 64 128], kernel_size: (1, 1, 1), 2 LSTM layers\n")
+    file.write("1 layer Conv3D filter (1, 1, 1), 1 Layer GRU\n")
     file.write("Training start time: " + str(training_start_time) + "\n")
     file.write("Training end time: " + str(training_end_time) + "\n")
     file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
