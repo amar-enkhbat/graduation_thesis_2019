@@ -110,7 +110,7 @@ n_labels = y_train.shape[1]
 batch_size = 300
 learning_rate = 1e-4
 
-filters = 32
+filters = 128
 kernel_size = (1, 1, 1)
 recurrent_units = 512
 
