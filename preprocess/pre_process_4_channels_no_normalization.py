@@ -34,28 +34,34 @@ def print_top(dataset_dir, window_size, height, width, begin_subject, end_subjec
 
 def data_1Dto2D(data, Y, X):
 	data_2D = np.zeros([Y, X])
-	data_2D[0, 0] = data[44]
-	data_2D[0, 1] = data[24]
-	data_2D[0, 2] = data[28]
-	data_2D[0, 3] = data[45]
-	# print(data_2D)
-	# data_2D[0] = ( 	   	 0, 	   0,  	   	 0, 	   0,        0,        0,        0, 	   0,  	     0, 	   0, 	 	 0) 
-	# data_2D[1] = (	  	 0, 	   0,  	   	 0, data[24],        0,        0,        0, data[28], 	   	 0,   	   0, 	 	 0) 
-	# data_2D[2] = (	  	 0,        0,        0,        0,        0,        0,        0,        0,        0,        0, 	 	 0) 
-	# data_2D[3] = (	  	 0,        0,        0,        0,        0,        0,        0,        0,        0,        0, 		 0) 
-	# data_2D[4] = (       0,        0,        0,        0,        0,        0,        0,        0,        0,        0,        0) 
-	# data_2D[5] = (	  	 0, data[44],        0,        0,        0,        0,        0,        0,        0, data[45], 		 0) 
-	# data_2D[6] = (	  	 0,        0,        0,        0,        0,        0,        0,        0,        0,        0, 		 0) 
-	# data_2D[7] = (	  	 0, 	   0, 	 	 0,        0,        0,        0,        0,        0, 	   	 0, 	   0, 		 0) 
-	# data_2D[8] = (	  	 0, 	   0, 	 	 0, 	   0,        0,        0,        0, 	   0, 	   	 0, 	   0, 		 0) 
-	# data_2D[9] = (	  	 0, 	   0, 	 	 0, 	   0, 	     0,        0, 		 0, 	   0, 	   	 0, 	   0, 		 0) 
+	if Y == 1:
+		data_2D[0, 0] = data[44]
+		data_2D[0, 1] = data[24]
+		data_2D[0, 2] = data[28]
+		data_2D[0, 3] = data[45]
+	elif Y == 2:
+		data_2D[0] = ( 	   	 0, 	   data[24],  	   	 data[28], 	   0) 
+		data_2D[1] = (	  	 data[44], 	   	  0,  	   	 	  	0, 	   data[45]) 
+	elif Y == 10:
+		data_2D[0] = ( 	   	 0, 	   0,  	   	 0, 	   0,        0,        0,        0, 	   0,  	     0, 	   0, 	 	 0) 
+		data_2D[1] = (	  	 0, 	   0,  	   	 0, data[24],        0,        0,        0, data[28], 	   	 0,   	   0, 	 	 0) 
+		data_2D[2] = (	  	 0,        0,        0,        0,        0,        0,        0,        0,        0,        0, 	 	 0) 
+		data_2D[3] = (	  	 0,        0,        0,        0,        0,        0,        0,        0,        0,        0, 		 0) 
+		data_2D[4] = (       0,        0,        0,        0,        0,        0,        0,        0,        0,        0,        0) 
+		data_2D[5] = (	  	 0, data[44],        0,        0,        0,        0,        0,        0,        0, data[45], 		 0) 
+		data_2D[6] = (	  	 0,        0,        0,        0,        0,        0,        0,        0,        0,        0, 		 0) 
+		data_2D[7] = (	  	 0, 	   0, 	 	 0,        0,        0,        0,        0,        0, 	   	 0, 	   0, 		 0) 
+		data_2D[8] = (	  	 0, 	   0, 	 	 0, 	   0,        0,        0,        0, 	   0, 	   	 0, 	   0, 		 0) 
+		data_2D[9] = (	  	 0, 	   0, 	 	 0, 	   0, 	     0,        0, 		 0, 	   0, 	   	 0, 	   0, 		 0) 
+	else:
+		raise ValueError('Unavailable mesh height: ', Y)
 	return data_2D
 
 def dataset_1Dto2D(dataset_1D, height, width):
 	dataset_2D = np.zeros([dataset_1D.shape[0], height, width])
 	for i in range(dataset_1D.shape[0]):
 		dataset_2D[i] = data_1Dto2D(dataset_1D[i], height, width)
-	print(dataset_2D)
+	# print(dataset_2D)
 	return dataset_2D
 
 def windows(data, size):
@@ -121,17 +127,20 @@ def apply_mixup(dataset_dir, window_size, height, width, start=1, end=110):
 if __name__ == '__main__':
 	dataset_dir		=	"../dataset/raw_dataset/"
 	window_size		=	10
-	height, width = 1, 4
-	begin_subject		=	3
-	end_subject		=	5
+	height, width = 2, 4
+	begin_subject, end_subject = 1, 108
 	output_dir		=	"../dataset/preprocessed_dataset/"
 	print_top(dataset_dir, window_size, height, width, begin_subject, end_subject, output_dir)
+	confirm = input('Continue? y/n: ')
+	if confirm == "y":
+		data, label = apply_mixup(dataset_dir, window_size, height, width, begin_subject, end_subject+1)
+		output_data = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_dataset_3D_win_"+str(window_size)+".pkl"
+		output_label= output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_labels_3D_win_"+str(window_size)+".pkl"
 
-	data, label = apply_mixup(dataset_dir, window_size, height, width, begin_subject, end_subject+1)
-	output_data = output_dir+str(begin_subject)+"_"+str(end_subject)+"_shuffle_dataset_3D_win_"+str(window_size)+".pkl"
-	output_label= output_dir+str(begin_subject)+"_"+str(end_subject)+"_shuffle_labels_3D_win_"+str(window_size)+".pkl"
-
-	with open(output_data, "wb") as fp:
-		pickle.dump(data, fp, protocol=4) 
-	with open(output_label, "wb") as fp:
-		pickle.dump(label, fp)
+		with open(output_data, "wb") as fp:
+			pickle.dump(data, fp, protocol=4) 
+		with open(output_label, "wb") as fp:
+			pickle.dump(label, fp)
+		print("Dataset preprocessing complete.")
+	else:
+		print("Dataset preprocessing canceled.")
