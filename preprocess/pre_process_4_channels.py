@@ -12,28 +12,20 @@ import pickle
 
 np.random.seed(0)
 
-def print_top(dataset_dir, window_size, parallel, convert, segment, begin_subject, end_subject, output_dir, set_store):
+def print_top(dataset_dir, window_size, begin_subject, end_subject, output_dir):
 	print("######################## PhysioBank EEG data preprocess ########################	\
 		   \n#### Author: Dalin Zhang	UNSW, Sydney	email: zhangdalin90@gmail.com #####	\
 		   \n# input directory:	%s \
 		   \n# window size:		%d 	\
-		   \n# parallel:	%s 	\
-		   \n# convert:		%s 	\
-		   \n# segment:		%s 	\
 		   \n# begin subject:	%d 	\
 		   \n# end subject:		%d 	\
 		   \n# output directory:	%s	\
-		   \n# set store:		%s 	\
 		   \n##############################################################################"% \
 			(dataset_dir,	\
 			window_size,	\
-			parallel,		\
-			convert,		\
-			segment,		\
 			begin_subject,	\
 			end_subject,	\
-			output_dir,		\
-			set_store))
+			output_dir))
 	return None
 
 def data_1Dto2D(data, Y=10, X=11):
@@ -49,19 +41,6 @@ def data_1Dto2D(data, Y=10, X=11):
 	data_2D[8] = (	  	 0, 	   0, 	 	 0, 	   0,        0,        0,        0, 	   0, 	   	 0, 	   0, 		 0) 
 	data_2D[9] = (	  	 0, 	   0, 	 	 0, 	   0, 	     0,        0, 		 0, 	   0, 	   	 0, 	   0, 		 0) 
 	return data_2D
-
-def norm_dataset(dataset_1D):
-	norm_dataset_1D = np.zeros([dataset_1D.shape[0], 64])
-	for i in range(dataset_1D.shape[0]):
-		norm_dataset_1D[i] = feature_normalize(dataset_1D[i])
-	return norm_dataset_1D
-
-def feature_normalize(data):
-	mean = data[data.nonzero()].mean()
-	sigma = data[data.nonzero()].std()
-	data_normalized = data
-	data_normalized[data_normalized.nonzero()] = (data_normalized[data_normalized.nonzero()] - mean)/sigma
-	return data_normalized
 
 def dataset_1Dto2D(dataset_1D):
 	dataset_2D = np.zeros([dataset_1D.shape[0], 10, 11])
@@ -94,7 +73,7 @@ def segment_signal_without_transition(data, label, window_size):
 				# labels = np.append(labels, stats.mode(label[start:end])[0][0])
 	return segments, labels
 
-def apply_mixup(dataset_dir, parallel, convert, segment, window_size, start=1, end=110):
+def apply_mixup(dataset_dir, window_size, start=1, end=110):
 	# initial empty label arrays
 	label_inter	= np.empty([0])
 	# initial empty data arrays
@@ -141,13 +120,13 @@ if __name__ == '__main__':
 	begin_subject		=	3
 	end_subject		=	5
 	output_dir		=	"../dataset/preprocessed_dataset/"
-	print_top(dataset_dir, window_size, parallel, convert, segment, begin_subject, end_subject, output_dir, set_store)
+	print_top(dataset_dir, window_size, begin_subject, end_subject, output_dir)
 
-	data, label = apply_mixup(dataset_dir, parallel, convert, segment, window_size, begin_subject, end_subject+1)
+	data, label = apply_mixup(dataset_dir, window_size, begin_subject, end_subject+1)
 	output_data = output_dir+str(begin_subject)+"_"+str(end_subject)+"_shuffle_dataset_3D_win_"+str(window_size)+".pkl"
 	output_label= output_dir+str(begin_subject)+"_"+str(end_subject)+"_shuffle_labels_3D_win_"+str(window_size)+".pkl"
 
 	with open(output_data, "wb") as fp:
-		pickle.dump(shuffled_data, fp, protocol=4) 
+		pickle.dump(data, fp, protocol=4) 
 	with open(output_label, "wb") as fp:
-		pickle.dump(shuffled_label, fp)
+		pickle.dump(label, fp)
