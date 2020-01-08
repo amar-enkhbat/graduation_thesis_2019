@@ -73,9 +73,9 @@ except OSError:
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
 
-with open(dataset_dir+"1_108_1x4_dataset_3D_win_10.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_dataset_3D_win_10_normalize_False_overlap_False.pkl", "rb") as fp:
     dataset = pickle.load(fp)
-with open(dataset_dir+"1_108_1x4_labels_3D_win_10.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_label_3D_win_10_normalize_False_overlap_False.pkl", "rb") as fp:
     labels = pickle.load(fp)
 height = dataset.shape[2]
 width = dataset.shape[3]
@@ -109,20 +109,24 @@ with open(results_path + "/ohe", "wb") as file:
 
 # Dataset Normalization
 
-# from sklearn.preprocessing import StandardScaler
-# scalers = []
+from sklearn.preprocessing import StandardScaler
 
-# scaler = StandardScaler()
+scaler = StandardScaler()
 
-# X_train = scaler.fit_transform(X_train)
-# X_valid = scaler.transform(X_valid)
-X_train_min = X_train.min(axis=(2, 3), keepdims=True)
-X_train_max = X_train.max(axis=(2, 3), keepdims=True)
-print(X_train_min)
-print(X_train_max)
+original_X_train_shape = X_train.shape
+original_X_valid_shape = X_valid.shape
+
+X_train = X_train.reshape(-1, 4)
+X_valid = X_valid.reshape(-1, 4)
+X_train = scaler.fit_transform(X_train)
+X_valid = scaler.transform(X_valid)
+X_train = X_train.reshape(-1, window_size, height, width, 1)
+X_valid = X_valid.reshape(-1, window_size, height, width, 1)
 
 with open(results_path + "/scaler", "wb") as file:
     pickle.dump(scaler, file)
+
+
 # Model
 
 dropout_prob = 0.5

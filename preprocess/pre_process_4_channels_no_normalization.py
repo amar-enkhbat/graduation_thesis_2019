@@ -12,23 +12,29 @@ import pickle
 
 np.random.seed(0)
 
-def print_top(dataset_dir, window_size, height, width, begin_subject, end_subject, output_dir):
+def print_top(dataset_dir, window_size, height, width, normamlize, overlap, begin_subject, end_subject, output_dir, store):
 	print("######################## PhysioBank EEG data preprocess ########################	\
 		   \n#### Author: Dalin Zhang	UNSW, Sydney	email: zhangdalin90@gmail.com #####	\
 		   \n# input directory:	%s \
 		   \n# window size:		%d 	\
 		   \n# height:	%d 	\
 		   \n# width:	%d 	\
+		   \n# overlap:	%s 	\
+		   \n# normalize:	%s 	\
 		   \n# begin subject:	%d 	\
 		   \n# end subject:		%d 	\
+		   \n# store:	%s	\
 		   \n# output directory:	%s	\
 		   \n##############################################################################"% \
 			(dataset_dir,	\
 			window_size,	\
 			height,	\
 			width,	\
+			normalize,	\
+			overlap,	\
 			begin_subject,	\
 			end_subject,	\
+			store,	\
 			output_dir))
 	return None
 
@@ -64,14 +70,30 @@ def dataset_1Dto2D(dataset_1D, height, width):
 	# print(dataset_2D)
 	return dataset_2D
 
-def windows(data, size):
+def windows(data, size, overlap):
 	start = 0
 	while ((start+size) < data.shape[0]):
 		yield int(start), int(start + size)
-		start += (size/2)
+		if overlap == True:
+			start += (size/2)
+		else:
+			start += size
+def norm_dataset(dataset_1D):
+	scalers = []
+	norm_dataset_1D = np.zeros([dataset_1D.shape[0], 64])
+	for i in range(dataset_1D.shape[1]):
+		norm_dataset_1D[:, i], scaler = feature_normalize(dataset_1D[:, i])
+		scalers.append(scaler)
+	return norm_dataset_1D, scalers
+def feature_normalize(data):
+	mean = data[data.nonzero()].mean()
+	sigma = data[data.nonzero()].std()
+	data_normalized = data
+	data_normalized[data_normalized.nonzero()] = (data_normalized[data_normalized.nonzero()] - mean)/sigma
+	return data_normalized, [mean, sigma]
 
-def segment_signal_without_transition(data, label, window_size):
-	for (start, end) in windows(data, window_size):
+def segment_signal_without_transition(data, label, window_size, overlap):
+	for (start, end) in windows(data, window_size, overlap):
 		if((len(data[start:end]) == window_size) and (len(set(label[start:end]))==1)):
 			if(start == 0):
 				segments = data[start:end]
@@ -83,7 +105,7 @@ def segment_signal_without_transition(data, label, window_size):
 				# labels = np.append(labels, stats.mode(label[start:end])[0][0])
 	return segments, labels
 
-def apply_mixup(dataset_dir, window_size, height, width, start=1, end=110):
+def preprocess(dataset_dir, window_size, height, width, normalize, overlap, start=1, end=110):
 	# initial empty label arrays
 	label_inter	= np.empty([0])
 	# initial empty data arrays
@@ -97,7 +119,7 @@ def apply_mixup(dataset_dir, window_size, height, width, start=1, end=110):
 		task_list = [task for task in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, task))]
 		for task in task_list:
 			if(("R02" in task) or ("R04" in task) or ("R06" in task)): # R02: eye closed; R04, R06: motor imagery tasks
-				print(task+" begin:")
+				print("Processing: " + task)
 				# get data file name and label file name
 				data_file 	= data_dir+"/"+task+"/"+task+".csv"
 				label_file 	= data_dir+"/"+task+"/"+task+".label.csv"
@@ -112,10 +134,14 @@ def apply_mixup(dataset_dir, window_size, height, width, start=1, end=110):
 				# get new data
 				data_label.drop('labels', axis=1, inplace=True)
 				data		= data_label.values
+				# normalize
+				if normalize == True:
+					data, scalers = norm_dataset(data)
+					print(len(scalers))
 				# convert 1D data to 2D
 				data		= dataset_1Dto2D(data, height, width)
 				# segment data with sliding window 
-				data, label	= segment_signal_without_transition(data, label, window_size)
+				data, label	= segment_signal_without_transition(data, label, window_size, overlap)
 				data		= data.reshape(int(data.shape[0]/window_size), window_size, height, width)
 				# append new data and label
 				data_inter	= np.vstack([data_inter, data])
@@ -127,20 +153,23 @@ def apply_mixup(dataset_dir, window_size, height, width, start=1, end=110):
 if __name__ == '__main__':
 	dataset_dir		=	"../dataset/raw_dataset/"
 	window_size		=	10
-	height, width = 2, 4
+	height, width = 1, 4
 	begin_subject, end_subject = 1, 108
+	normalize = False
+	overlap = False
 	output_dir		=	"../dataset/preprocessed_dataset/"
-	print_top(dataset_dir, window_size, height, width, begin_subject, end_subject, output_dir)
+	store = True
+	print_top(dataset_dir, window_size, height, width, normalize, overlap, begin_subject, end_subject, output_dir, store)
 	confirm = input('Continue? y/n: ')
 	if confirm == "y":
-		data, label = apply_mixup(dataset_dir, window_size, height, width, begin_subject, end_subject+1)
-		output_data = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_dataset_3D_win_"+str(window_size)+".pkl"
-		output_label= output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_labels_3D_win_"+str(window_size)+".pkl"
-
-		with open(output_data, "wb") as fp:
-			pickle.dump(data, fp, protocol=4) 
-		with open(output_label, "wb") as fp:
-			pickle.dump(label, fp)
+		data, label = preprocess(dataset_dir, window_size, height, width, normalize, overlap, begin_subject, end_subject+1)
+		output_data = output_dir + str(begin_subject) + "_" + str(end_subject) + "_" + str(height) + "x" + str(width) + "_dataset_3D_win_" + str(window_size) + "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + ".pkl"
+		output_label = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_label_3D_win_"+str(window_size)+ "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + ".pkl"
+		if store == True:
+			with open(output_data, "wb") as fp:
+				pickle.dump(data, fp, protocol=4) 
+			with open(output_label, "wb") as fp:
+				pickle.dump(label, fp)
 		print("Dataset preprocessing complete.")
 	else:
-		print("Dataset preprocessing canceled.")
+		print("Dataset preprocessing cancelled.")
