@@ -12,15 +12,15 @@ import pickle
 
 np.random.seed(0)
 
-def print_top(dataset_dir, window_size, height, width, normamlize, overlap, begin_subject, end_subject, output_dir, store):
+def print_top(dataset_dir, window_size, height, width, normalize, overlap, begin_subject, end_subject, output_dir, store):
 	print("######################## PhysioBank EEG data preprocess ########################	\
 		   \n#### Author: Dalin Zhang	UNSW, Sydney	email: zhangdalin90@gmail.com #####	\
 		   \n# input directory:	%s \
 		   \n# window size:		%d 	\
 		   \n# height:	%d 	\
 		   \n# width:	%d 	\
-		   \n# overlap:	%s 	\
 		   \n# normalize:	%s 	\
+		   \n# overlap:	%s 	\
 		   \n# begin subject:	%d 	\
 		   \n# end subject:		%d 	\
 		   \n# store:	%s	\
@@ -153,10 +153,10 @@ def preprocess(dataset_dir, window_size, height, width, normalize, overlap, star
 if __name__ == '__main__':
 	dataset_dir		=	"../dataset/raw_dataset/"
 	window_size		=	10
-	height, width = 1, 4
+	height, width = 2, 4
 	begin_subject, end_subject = 1, 108
 	normalize = False
-	overlap = False
+	overlap = True
 	output_dir		=	"../dataset/preprocessed_dataset/"
 	store = True
 	print_top(dataset_dir, window_size, height, width, normalize, overlap, begin_subject, end_subject, output_dir, store)
