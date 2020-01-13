@@ -138,7 +138,7 @@ print(X_valid[0, 2].reshape(height, width))
 
 # Model
 
-dropout_prob = 0.5
+dropout_prob = 0.8
 n_labels = y_train.shape[1]
 batch_size = 300
 learning_rate = 1e-4
