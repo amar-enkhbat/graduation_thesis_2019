@@ -73,11 +73,14 @@ except OSError:
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
 
-with open(dataset_dir+"1_108_shuffle_dataset_3D_win_10_4_channels.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_dataset_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
     dataset = pickle.load(fp)
-with open(dataset_dir+"1_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_label_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
     labels = pickle.load(fp)
-dataset = dataset.reshape(-1, 10, 10, 11, 1)
+height = dataset.shape[2]
+width = dataset.shape[3]
+window_size = dataset.shape[1]
+# dataset = dataset.reshape(-1, window_size, height, width, 1)
 print("Dataset shape:", dataset.shape)
 print("Labels shape:", labels.shape)
 
@@ -88,9 +91,11 @@ print("Train label shape:", y_train.shape)
 print("Test dataset shape:", X_valid.shape)
 print("Test label shape:", y_valid.shape)
 
-print(X_train[0, 2].reshape(10, 11))
-print(X_valid[0, 2].reshape(10, 11))
+print("Dataset example:")
+print(X_train[0, 2].reshape(height, width))
+print(X_valid[0, 2].reshape(height, width))
 
+# Label encoding
 
 from sklearn.preprocessing import OneHotEncoder
 ohe = OneHotEncoder(sparse=False)
@@ -103,6 +108,34 @@ y_valid = ohe.transform(y_valid)
 with open(results_path + "/ohe", "wb") as file:
     pickle.dump(ohe, file)
 
+# Dataset Normalization
+
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+original_X_train_shape = X_train.shape
+original_X_valid_shape = X_valid.shape
+
+X_train = X_train.reshape(-1, height*width)
+X_valid = X_valid.reshape(-1, height*width)
+X_train = scaler.fit_transform(X_train)
+X_valid = scaler.transform(X_valid)
+X_train = X_train.reshape(-1, window_size, height, width, 1)
+X_valid = X_valid.reshape(-1, window_size, height, width, 1)
+
+with open(results_path + "/scaler", "wb") as file:
+    pickle.dump(scaler, file)
+print("Dataset example after normalization:")
+print(X_train[0, 2].reshape(height, width))
+print(X_valid[0, 2].reshape(height, width))
+# print("Dataset example after inverse normalization:")
+# norm_test = X_train[0, 2].reshape(height * width)
+# print(norm_test.shape)
+# print(scaler.inverse_transform(norm_test).reshape(height, width))
+# print(X_valid[0, 2].reshape(height, width))
+
+
 # Model
 
 dropout_prob = 0.5
@@ -110,14 +143,15 @@ n_labels = y_train.shape[1]
 batch_size = 300
 learning_rate = 1e-4
 
-filters = 32
+filters = 128
 kernel_size = (1, 1, 1)
-recurrent_units = 128
+recurrent_units = 1024
 
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Activation, Dropout, Input, LSTM, Conv2D, Conv3D, GRU
 from tensorflow.keras.layers import Reshape, Flatten, Softmax
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import Bidirectional
 
 def model(input_shape):
     """
@@ -134,10 +168,11 @@ def model(input_shape):
     # conv_1 = Conv3D(filters=32, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(X_input)
     # conv_2 = Conv3D(filters=64, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(conv_1)
     # conv_3 = Conv3D(filters=128, kernel_size=(1, 1, 1), padding="same", strides=(1, 1, 1), activation="elu")(conv_2)
-    conv_3 = Conv3D(filters=filters, kernel_size=kernel_size, padding="same", strides=(1, 1, 1), activation="elu")(X_input)
-    shape = conv_3.get_shape().as_list()
     
-    pool_2_flat = Reshape([shape[1], shape[2]*shape[3]*shape[4]])(conv_3)
+    # conv_3 = Conv3D(filters=filters, kernel_size=kernel_size, padding="same", strides=(1, 1, 1), activation="elu")(X_input)
+    shape = X_input.get_shape().as_list()
+    
+    pool_2_flat = Reshape([shape[1], shape[2]*shape[3]*shape[4]])(X_input)
     fc = Dense(recurrent_units, activation="elu")(pool_2_flat)
     fc_drop = Dropout(dropout_prob)(fc)
     
@@ -145,7 +180,7 @@ def model(input_shape):
     # lstm_1 = LSTM(units=1024, return_sequences=True, unit_forget_bias=True, dropout=dropout_prob)(lstm_in)
     # rnn_output = LSTM(units=1024, return_sequences=False, unit_forget_bias=True)(lstm_1)
     # lstm_1 = GRU(units=1024, return_sequences=True, dropout=dropout_prob)(lstm_in)
-    rnn_output = GRU(units=recurrent_units, return_sequences=False)(lstm_in)
+    rnn_output = Bidirectional(GRU(units=recurrent_units, return_sequences=False, dropout=dropout_prob, recurrent_dropout=dropout_prob))(lstm_in)
     
     shape_rnn_out = rnn_output.get_shape().as_list()
     fc_out = Dense(shape_rnn_out[1], activation="elu")(rnn_output)
