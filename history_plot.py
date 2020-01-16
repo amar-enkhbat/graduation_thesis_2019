@@ -15,6 +15,10 @@ for results_dir in results_dirs:
         history = pickle.load(file)
     plt.plot(history['acc'], label="Training")
     plt.plot(history['val_acc'], label="Validation")
+    max_val_index = np.argmax(history["val_acc"])
+    max_val = history["val_acc"][max_val_index]
+    # plt.annotate("Max Acc", xy=(max_val_index, history["val_acc"][max_val_index]), xycoords="data", label=("Max Val Acc: " + str(max_val.round(2))))
+    plt.scatter(max_val_index, history["val_acc"][max_val_index], marker="x", color="red", label=("Max Val Acc: " + str(max_val.round(3))))
     plt.title(results_dir)
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
