@@ -1,8 +1,6 @@
-
 # coding: utf-8
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import sklearn
 import os
 import pandas as pd
@@ -28,51 +26,8 @@ except OSError:
     print("Directory %s already exists. Creating new directory under %s(2)" % (results_path, results_path))
     os.mkdir(results_path+ "(2)")
 
-# # Training data 64 channel 1-81
-
-# dataset_dir = "./dataset/preprocessed_dataset/"
-
-# with open(dataset_dir+"1_81_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
-#     X_train = pickle.load(fp)
-# with open(dataset_dir+"1_81_shuffle_labels_3D_win_10.pkl", "rb") as fp:
-#     y_train = pickle.load(fp)
-# X_train = X_train.reshape(-1, 10, 10, 11, 1)
-# print("Dataset shape:", X_train.shape)
-# print("Labels shape:", y_train.shape)
-
-# print(X_train[0, 2].reshape(10, 11))
-
-# from sklearn.preprocessing import OneHotEncoder
-# ohe = OneHotEncoder(sparse=False)
-
-# y_train = y_train.reshape(-1, 1)
-# y_train = ohe.fit_transform(y_train)
-
-
-# # Validation data 4-channel 82-108 
-
-# dataset_dir = "./dataset/preprocessed_dataset/"
-# result_dir = "./results/"
-
-# with open(dataset_dir+"82_108_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
-#     X_valid = pickle.load(fp)
-# with open(dataset_dir+"82_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
-#     y_valid = pickle.load(fp)
-# X_valid = X_valid.reshape(-1, 10, 10, 11, 1)
-# print("Dataset shape:", X_valid.shape)
-# print("Labels shape:", y_valid.shape)
-
-# print(X_valid[0, 2].reshape(10, 11))
-
-# y_valid = y_valid.reshape(-1, 1)
-# y_valid = ohe.transform(y_valid)
-
-# with open(results_path + "/ohe", "wb") as file:
-#     pickle.dump(ohe, file)
-
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
-
 with open(dataset_dir+"1_108_shuffle_dataset_3D_win_10_4_channels.pkl", "rb") as fp:
     dataset = pickle.load(fp)
 with open(dataset_dir+"1_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
@@ -90,7 +45,6 @@ print("Test label shape:", y_valid.shape)
 
 print(X_train[0, 2].reshape(10, 11))
 print(X_valid[0, 2].reshape(10, 11))
-
 
 from sklearn.preprocessing import OneHotEncoder
 ohe = OneHotEncoder(sparse=False)
@@ -176,10 +130,10 @@ print("Training start date and time:", training_start_time)
 print("Training end date and time:", training_end_time)
 print("Training duration:", training_end_time - training_start_time)
 
-with open(results_path + "/readme.txt", "w") as file:
-    file.write("Training data: first 75%, 4 channels\n")
-    file.write("Validation data: last 25%, 4 channels\n")
-    file.write("1 layer Conv3D filter (1, 1, 1), 1 Layer GRU\n")
-    file.write("Training start time: " + str(training_start_time) + "\n")
-    file.write("Training end time: " + str(training_end_time) + "\n")
-    file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
+# with open(results_path + "/readme.txt", "w") as file:
+#     file.write("Training data: first 75%, 4 channels\n")
+#     file.write("Validation data: last 25%, 4 channels\n")
+#     file.write("1 layer Conv3D filter (1, 1, 1), 1 Layer GRU\n")
+#     file.write("Training start time: " + str(training_start_time) + "\n")
+#     file.write("Training end time: " + str(training_end_time) + "\n")
+#     file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
