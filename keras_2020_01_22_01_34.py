@@ -27,9 +27,9 @@ except OSError:
 
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
-with open(dataset_dir+"1_108_2x4_dataset_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_dataset_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
     dataset = pickle.load(fp)
-with open(dataset_dir+"1_108_2x4_label_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_label_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
     labels = pickle.load(fp)
 height = dataset.shape[2]
 width = dataset.shape[3]
@@ -63,25 +63,25 @@ with open(results_path + "/ohe", "wb") as file:
 
 # Dataset Normalization
 
-# from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler
 
-# scaler = StandardScaler()
+scaler = StandardScaler()
 
-# original_X_train_shape = X_train.shape
-# original_X_valid_shape = X_valid.shape
+original_X_train_shape = X_train.shape
+original_X_valid_shape = X_valid.shape
 
-# X_train = X_train.reshape(-1, height*width)
-# X_valid = X_valid.reshape(-1, height*width)
-# X_train = scaler.fit_transform(X_train)
-# X_valid = scaler.transform(X_valid)
+X_train = X_train.reshape(-1, height*width)
+X_valid = X_valid.reshape(-1, height*width)
+X_train = scaler.fit_transform(X_train)
+X_valid = scaler.transform(X_valid)
 X_train = X_train.reshape(-1, window_size, height, width, 1)
 X_valid = X_valid.reshape(-1, window_size, height, width, 1)
 
-# with open(results_path + "/scaler", "wb") as file:
-#     pickle.dump(scaler, file)
-# print("Dataset example after normalization:")
-# print(X_train[0, 2].reshape(height, width))
-# print(X_valid[0, 2].reshape(height, width))
+with open(results_path + "/scaler", "wb") as file:
+    pickle.dump(scaler, file)
+print("Dataset example after normalization:")
+print(X_train[0, 2].reshape(height, width))
+print(X_valid[0, 2].reshape(height, width))
 
 # Model
 
@@ -91,7 +91,7 @@ batch_size = 300
 learning_rate = 1e-4
 
 filters = 64
-kernel_size = (1, 1, 1)
+kernel_size = (1, 1, 2)
 recurrent_units = 256
 dense_1 = recurrent_units
 dense_2 = 512
@@ -166,12 +166,27 @@ if confirm == "y":
     print("Training end date and time:", training_end_time)
     print("Training duration:", training_end_time - training_start_time)
 
-    # with open(results_path + "/readme.txt", "w") as file:
-    #     file.write("Training data: first 75%, 4 channels\n")
-    #     file.write("Validation data: last 25%, 4 channels\n")
-    #     file.write("Training start time: " + str(training_start_time) + "\n")
-    #     file.write("Training end time: " + str(training_end_time) + "\n")
-    #     file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
+    with open(results_path + "/readme.txt", "w") as file:
+        file.write("Training data: 1-108 75%, 4 channels, 1x4, shuffle=True,\n")
+        file.write("Validation data: 1-108 25%, 4 channels, 1x4, shuffle=True,\n")
+        file.write("normalize=False, overlap=True,\n")
+        file.write("One-hot encoded,\n")
+        file.write("Normalization StandardScaler, individual channels,\n")
+        file.write("dropout_prob = 0.5,\n")
+        file.write("n_labels = y_train.shape[1],\n")
+        file.write("epochs = 300,\n")
+        file.write("batch_size = 300,\n")
+        file.write("learning_rate = 1e-4,\n")
+        file.write("Conv3D, 64, (1, 1, 2),\n")
+        file.write("Dense, 256, dropout,\n")
+        file.write("Bidrectional GRU, 256*2, dropout, recurrent_dropout,\n")
+        file.write("Bidrectional GRU, 256*2, dropout, recurrent_dropout,\n")
+        file.write("Bidrectional GRU, 256*2, dropout, recurrent_dropout,\n")
+        file.write("Dense, 512, dropout,\n")
+        file.write("ADAM, shuffle=False,\n")
+        file.write("Training start time: " + str(training_start_time) + "\n")
+        file.write("Training end time: " + str(training_end_time) + "\n")
+        file.write("Training duration: " + str(training_end_time - training_start_time) + "\n")
     
     # Predict
     y_pred = model.predict(X_valid, batch_size=batch_size, verbose=1)
