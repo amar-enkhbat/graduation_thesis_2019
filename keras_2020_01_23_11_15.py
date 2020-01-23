@@ -172,7 +172,7 @@ if confirm == "y":
         file.write("normalize=False, overlap=True,\n")
         file.write("One-hot encoded,\n")
         file.write("Normalization StandardScaler, individual channels,\n")
-        file.write("dropout_prob = 0.5,\n")
+        file.write("dropout_prob = 0.3,\n")
         file.write("n_labels = y_train.shape[1],\n")
         file.write("epochs = 300,\n")
         file.write("batch_size = 300,\n")
