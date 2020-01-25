@@ -118,7 +118,7 @@ def preprocess(dataset_dir, window_size, height, width, normalize, overlap, star
 		# get task list for one subject
 		task_list = [task for task in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, task))]
 		for task in task_list:
-			if(("R02" in task) or ("R04" in task) or ("R06" in task)): # R02: eye closed; R04, R06: motor imagery tasks
+			if(("R02" in task) or ("R04" in task) or ("R06" in task) or ("R08" in task) or ("R10" in task)): # R02: eye closed; R04, R06: motor imagery tasks
 				print("Processing: " + task)
 				# get data file name and label file name
 				data_file 	= data_dir+"/"+task+"/"+task+".csv"
@@ -153,8 +153,8 @@ def preprocess(dataset_dir, window_size, height, width, normalize, overlap, star
 if __name__ == '__main__':
 	dataset_dir		=	"../dataset/raw_dataset/"
 	window_size		=	10
-	height, width = 2, 4
-	begin_subject, end_subject = 1, 108
+	height, width = 1, 4
+	begin_subject, end_subject = 1, 109
 	normalize = False
 	overlap = True
 	output_dir		=	"../dataset/preprocessed_dataset/"
