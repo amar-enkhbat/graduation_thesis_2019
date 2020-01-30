@@ -7,7 +7,8 @@ import pickle
 import pandas as pd
 import os
 results_dirs = os.listdir("./results/")
-print(sorted(results_dirs))
+results_dirs = sorted(results_dirs)
+print(results_dirs)
 
 for results_dir in results_dirs:
     history_path = "./results/" + results_dir 
