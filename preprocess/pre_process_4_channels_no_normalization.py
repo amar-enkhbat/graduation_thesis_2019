@@ -118,7 +118,7 @@ def preprocess(dataset_dir, window_size, height, width, normalize, overlap, star
 		# get task list for one subject
 		task_list = [task for task in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, task))]
 		for task in task_list:
-			if(("R02" in task) or ("R04" in task) or ("R06" in task)): # R02: eye closed; R04, R06: motor imagery tasks
+			if(("R02" in task) or ("R04" in task) or ("R06" in task) or ("R08" in task) or ("R10" in task)): # R02: eye closed; R04, R06: motor imagery tasks
 				print("Processing: " + task)
 				# get data file name and label file name
 				data_file 	= data_dir+"/"+task+"/"+task+".csv"
@@ -163,11 +163,12 @@ if __name__ == '__main__':
 	confirm = input('Continue? y/n: ')
 	if confirm == "y":
 		data, label = preprocess(dataset_dir, window_size, height, width, normalize, overlap, begin_subject, end_subject+1)
-		output_data = output_dir + str(begin_subject) + "_" + str(end_subject) + "_" + str(height) + "x" + str(width) + "_dataset_3D_win_" + str(window_size) + "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + ".pkl"
-		output_label = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_label_3D_win_"+str(window_size)+ "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + ".pkl"
+		# output_data = output_dir + str(begin_subject) + "_" + str(end_subject) + "_" + str(height) + "x" + str(width) + "_dataset_3D_win_" + str(window_size) + "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + ".pkl"
+		# output_label = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_label_3D_win_"+str(window_size)+ "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + ".pkl"
 		# output_data = output_dir + str(begin_subject) + "_" + str(end_subject) + "_" + str(height) + "x" + str(width) + "_dataset_3D_win_" + str(window_size) + "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + "_no_eye_close.pkl"
 		# output_label = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_label_3D_win_"+str(window_size)+ "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + "_no_eye_close.pkl"
-
+		output_data = output_dir + str(begin_subject) + "_" + str(end_subject) + "_" + str(height) + "x" + str(width) + "_dataset_3D_win_" + str(window_size) + "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + "_R08_R10.pkl"
+		output_label = output_dir+str(begin_subject)+"_"+str(end_subject)+"_" + str(height) + "x" + str(width) + "_label_3D_win_"+str(window_size)+ "_normalize_" + str(normalize) + "_overlap_" + str(overlap) + "_R08_R10.pkl"
 		if store == True:
 			with open(output_data, "wb") as fp:
 				pickle.dump(data, fp, protocol=4) 

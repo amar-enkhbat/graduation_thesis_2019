@@ -8,7 +8,6 @@ import pickle
 import tensorflow as tf
 import numpy as np
 import time
-
 random_state = 33
 np.random.seed(random_state)
 

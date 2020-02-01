@@ -1,8 +1,6 @@
-
 # coding: utf-8
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import sklearn
 import os
 import pandas as pd
@@ -127,7 +125,6 @@ training_start_time = datetime.now()
 print("Training start date and time:", training_start_time)
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
 training_end_time = datetime.now()
-
 print("Training end date and time:", training_end_time)
 model.save(results_path + "/model/model.h5")
 

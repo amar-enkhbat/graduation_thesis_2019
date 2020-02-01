@@ -1,7 +1,6 @@
 # coding: utf-8
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import sklearn
 import os
 import pandas as pd
@@ -9,7 +8,6 @@ import pickle
 import tensorflow as tf
 import numpy as np
 import time
-
 random_state = 33
 np.random.seed(random_state)
 
@@ -20,7 +18,6 @@ now = now.strftime("%Y_%m_%d_%H_%M")
 results_path = "./results/keras_" + now
 print("Saving results in:", results_path)
 print()
-
 try:
     os.mkdir(results_path)
 except OSError:

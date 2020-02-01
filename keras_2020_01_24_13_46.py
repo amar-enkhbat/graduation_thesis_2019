@@ -8,7 +8,6 @@ import pickle
 import tensorflow as tf
 import numpy as np
 import time
-
 random_state = 33
 np.random.seed(random_state)
 
@@ -183,9 +182,9 @@ if confirm == "y":
         file.write("Conv3D, 64, (1, 1, 2),\n")
         file.write("Conv3D, 128, (1, 1, 2),\n")
         file.write("Dense, 256, dropout,\n")
-        file.write("Bidrectional GRU, 256*2, dropout, recurrent_dropout,\n")
-        file.write("Bidrectional GRU, 256*2, dropout, recurrent_dropout,\n")
-        file.write("Bidrectional GRU, 256*2, dropout, recurrent_dropout,\n")
+        file.write("Bidrectional LSTM, 256*2, dropout, recurrent_dropout,\n")
+        file.write("Bidrectional LSTM, 256*2, dropout, recurrent_dropout,\n")
+        file.write("Bidrectional LSTM, 256*2, dropout, recurrent_dropout,\n")
         file.write("Dense, 512, dropout,\n")
         file.write("ADAM, shuffle=False,\n")
         file.write("Training start time: " + str(training_start_time) + "\n")
@@ -213,7 +212,7 @@ if confirm == "y":
     plt.grid()
     plt.legend(loc="best")
     plt.title("precision vs. recall curve")
-    plt.savefig(results_path + "/precision_recall_curve", bbox_inches = "tight")
+    plt.savefig(results_path + "/precision_recall_curve", bbox_inches="tight")
     plt.clf()
 
     # plot ROC Curve
@@ -262,7 +261,7 @@ if confirm == "y":
     plt.title('Receiver operating characteristic to multi-class')
     plt.legend(loc="lower right")
     plt.grid()
-    plt.savefig(results_path + "/roc_curve", bbox_inches = "tight")
+    plt.savefig(results_path + "/roc_curve", bbox_inches="tight")
     plt.clf()
     # Plot confusion matrix
     from sklearn.metrics import classification_report, confusion_matrix
@@ -288,7 +287,7 @@ if confirm == "y":
     ax.yaxis.set_ticklabels(ohe.categories_[0])
     plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
     plt.setp(ax.get_yticklabels(), rotation=30, horizontalalignment='right')
-    plt.savefig(results_path + "/confusion_matrix", bbox_inches = "tight")
+    plt.savefig(results_path + "/confusion_matrix", bbox_inches="tight")
     plt.clf()
     plt.figure(figsize=(10, 7))
     ax = plt.subplot()
@@ -300,7 +299,7 @@ if confirm == "y":
     ax.yaxis.set_ticklabels(ohe.categories_[0])
     plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
     plt.setp(ax.get_yticklabels(), rotation=30, horizontalalignment='right')
-    plt.savefig(results_path + "/confusion_matrix_normalized", bbox_inches = "tight")
+    plt.savefig(results_path + "/confusion_matrix_normalized", bbox_inches="tight")
     plt.clf()
     from contextlib import redirect_stdout
     with open(results_path + '/model_summary.txt', 'w') as file:

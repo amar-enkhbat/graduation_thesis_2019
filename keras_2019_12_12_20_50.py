@@ -1,8 +1,6 @@
-
 # coding: utf-8
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import sklearn
 import os
 import pandas as pd
@@ -73,7 +71,6 @@ with open(results_path + "/ohe", "wb") as file:
 
 dropout_prob = 0.5
 n_labels = y_train.shape[1]
-training_epochs = 10
 batch_size = 300
 learning_rate = 1e-4
 
@@ -128,7 +125,6 @@ checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1)
 
 print("Training start date and time:", datetime.now())
-
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
 print("Training end date and time:", datetime.now())
 model.save(results_path + "/model/model.h5")

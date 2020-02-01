@@ -1,7 +1,6 @@
 # coding: utf-8
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import sklearn
 import os
 import pandas as pd
@@ -9,7 +8,6 @@ import pickle
 import tensorflow as tf
 import numpy as np
 import time
-
 random_state = 33
 np.random.seed(random_state)
 

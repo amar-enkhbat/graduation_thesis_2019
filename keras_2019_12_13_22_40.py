@@ -1,8 +1,6 @@
-
 # coding: utf-8
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
 import sklearn
 import os
 import pandas as pd
@@ -19,7 +17,6 @@ now = now.strftime("%Y_%m_%d_%H_%M")
 
 results_path = "./results/keras_" + now
 print("Saving results in:", results_path)
-
 print()
 import os
 try:
@@ -31,7 +28,6 @@ except OSError:
 # # Training data 64 channel 1-81
 
 dataset_dir = "./dataset/preprocessed_dataset/"
-
 with open(dataset_dir+"1_81_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
     X_train = pickle.load(fp)
 with open(dataset_dir+"1_81_shuffle_labels_3D_win_10.pkl", "rb") as fp:
@@ -52,7 +48,6 @@ y_train = ohe.fit_transform(y_train)
 
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
-
 with open(dataset_dir+"82_108_shuffle_dataset_3D_win_10.pkl", "rb") as fp:
     X_valid = pickle.load(fp)
 with open(dataset_dir+"82_108_shuffle_labels_3D_win_10.pkl", "rb") as fp:
@@ -126,12 +121,16 @@ checkpoint_path = results_path + "/model/cp.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1)
 
-print("Training start date and time:", datetime.now())
+training_start_time = datetime.now()
+print("Training start date and time:", training_start_time)
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
-print("Training end date and time:", datetime.now())
+training_end_time = datetime.now()
+print("Training end date and time:", training_end_time)
 model.save(results_path + "/model/model.h5")
 
 with open(results_path + "/train_hist", "wb") as file:
     pickle.dump(history.history, file)
 
-print("Training start date and time:", datetime.now())
+print("Training start date and time:", training_start_time)
+print("Training end date and time:", training_end_time)
+print("Training duration:", training_end_time - training_start_time)
