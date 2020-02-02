@@ -26,9 +26,9 @@ except OSError:
 
 dataset_dir = "./dataset/preprocessed_dataset/"
 result_dir = "./results/"
-with open(dataset_dir+"1_109_1x4_dataset_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_dataset_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
     dataset = pickle.load(fp)
-with open(dataset_dir+"1_109_1x4_label_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
+with open(dataset_dir+"1_108_1x4_label_3D_win_10_normalize_False_overlap_True.pkl", "rb") as fp:
     labels = pickle.load(fp)
 height = dataset.shape[2]
 width = dataset.shape[3]
