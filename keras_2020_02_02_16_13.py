@@ -90,7 +90,7 @@ batch_size = 300
 learning_rate = 1e-4
 
 filters = 128
-kernel_size = (3, 3, 3)
+kernel_size = (1, 3, 3)
 recurrent_units = 256
 dense_1 = recurrent_units
 dense_2 = 512
