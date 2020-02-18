@@ -3,9 +3,16 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pickle
 import pandas as pd
 import os
+
+import matplotlib; matplotlib.rc('font', family='TakaoPGothic')
+# sns.set()
+# sns.set_context("talk")
+sns.set_context("notebook", font_scale=1.5)
+
 results_dirs = os.listdir("./results/")
 results_dirs = sorted(results_dirs)
 print(results_dirs)
@@ -14,26 +21,25 @@ for results_dir in results_dirs:
     history_path = "./results/" + results_dir 
     with open(history_path + "/train_hist", "rb") as file:
         history = pickle.load(file)
-    plt.plot(history['acc'], color="C0", label="Training")
-    plt.plot(history['val_acc'], color="C1", label="Validation")
+    plt.figure(figsize=(10, 7))
+    plt.plot(history['acc'], color="C0", label="学習")
+    plt.plot(history['val_acc'], color="C1", label="検証")
     max_val_index = np.argmax(history["acc"])
     max_val = history["acc"][max_val_index]
-    # plt.annotate("Max Acc", xy=(max_val_index, history["val_acc"][max_val_index]), xycoords="data", label=("Max Val Acc: " + str(max_val.round(2))))
-    plt.scatter(max_val_index, history["acc"][max_val_index], marker="x", color="blue", label=("Max Train Acc: " + str(max_val.round(3))))
+    plt.scatter(max_val_index, history["acc"][max_val_index], marker="x", color="blue", label=("最大学習正解率: " + str(max_val.round(3))))
     max_val_index = np.argmax(history["val_acc"])
     max_val = history["val_acc"][max_val_index]
-    # plt.annotate("Max Acc", xy=(max_val_index, history["val_acc"][max_val_index]), xycoords="data", label=("Max Val Acc: " + str(max_val.round(2))))
-    plt.scatter(max_val_index, history["val_acc"][max_val_index], marker="x", color="red", label=("Max Val Acc: " + str(max_val.round(3))))
+    plt.scatter(max_val_index, history["val_acc"][max_val_index], marker="x", color="red", label=("最大検証正解率: " + str(max_val.round(3))))
     plt.title(results_dir)
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
+    plt.ylabel('正解率')
+    plt.xlabel('エポック数')
     plt.legend(loc='lower right')
-    plt.grid(0.1)
+    plt.grid()
     plt.yticks(np.arange(0, 1.1, 0.1))
-    plt.ylim(0, 1)
-    plt.savefig("./images/" + results_dir)
-    plt.clf()
+    plt.ylim(0, 1.05)
     # plt.show()
+    plt.savefig("./images/" + results_dir, bbox_inches="tight")
+    plt.clf()
 
 # for results_dir in results_dirs:
 #     history_path = "./results/" + results_dir 
@@ -55,28 +61,41 @@ for results_dir in results_dirs:
 #     # plt.legend()
 #     plt.grid()
 #     plt.ylim(0, 1)
-# plt.savefig("./images/" + "matome")
+# plt.savefig("./images/" + "matome", bbox_inches="tight")
 # # plt.show()
 
-# results_dirs = ["keras_2019_12_26_18_26", "keras_2019_12_26_20_17", "keras_2019_12_27_02_25"]
-# results_dirs = ["keras_2019_12_26_18_26"]
-# results_dirs = ['keras_2019_12_26_18_26', 'keras_2019_12_26_20_17', 'keras_2019_12_27_02_25', 'keras_2019_12_27_15_02', 'keras_2019_12_28_15_35', 'keras_2020_01_08_15_38', 'keras_2020_01_10_00_31', 'keras_2020_01_10_01_51', 'keras_2020_01_11_15_21', 'keras_2020_01_12_14_54', 'keras_2020_01_13_02_56', 'keras_2020_01_13_13_57', 'keras_2020_01_13_16_21', 'keras_2020_01_14_01_54', 'keras_2020_01_14_20_57', 'keras_2020_01_15_16_08', 'keras_2020_01_16_16_02']
-# keras_2019_12_26_18_26: conv 32 filters, gru 128 units
-# keras_2019_12_26_20_17: conv 64 filters, gru 128 units
-# keras_2019_12_27_02_25: conv 128 filters, gru 128 units
-# keras_2019_12_27_15_02: conv 32 filters, gru 512 units
-# results_dirs = ["keras_2019_12_28_15_35", "keras_2020_01_08_15_38", "keras_2020_01_10_00_31"]
-# for results_dir in results_dirs:
-#     history_path = "./results/" + results_dir 
-#     with open(history_path + "/train_hist", "rb") as file:
-#         history = pickle.load(file)
-#     plt.plot(history['acc'], label=(results_dir + "_train"), linestyle="-")
-#     plt.plot(history['val_acc'], label=(results_dir + "_valid"), linestyle=":")
-#     plt.title("Results")
-#     plt.ylabel('accuracy')
-#     plt.xlabel('epoch')
-#     plt.legend()
-# plt.grid()
-#     # plt.ylim(0, 1)
-# plt.savefig("./images/" + "matome_height_dif")
+# results_dirs = ["keras_2019_12_12_20_51", "keras_2020_01_23_11_56"]
+
+# plt.figure(figsize=(10, 7))
+
+# history_path = "./results/" + "keras_2019_12_12_20_51"
+# with open(history_path + "/train_hist", "rb") as file:
+#     history = pickle.load(file)
+# plt.plot(history['acc'], label=("jikken1_train"), linestyle="-", color="C1")
+# plt.plot(history['val_acc'], label=("jikken1_valid"), linestyle="-.", color="C1")
+# max_val_index = np.argmax(history["acc"])
+# max_val = history["acc"][max_val_index]
+# plt.scatter(max_val_index, history["acc"][max_val_index], marker="x", color="C1", label=("Max Train Acc: " + str(max_val.round(3))))
+# max_val_index = np.argmax(history["val_acc"])
+# max_val = history["val_acc"][max_val_index]
+# plt.scatter(max_val_index, history["val_acc"][max_val_index], marker="o", color="C1", label=("Max Val Acc: " + str(max_val.round(3))))
+
+# history_path = "./results/" + "keras_2020_01_23_11_56"
+# with open(history_path + "/train_hist", "rb") as file:
+#     history = pickle.load(file)
+# plt.plot(history['acc'], label=("jikken2_train"), linestyle="-", color="C0")
+# plt.plot(history['val_acc'], label=("jikken2_valid"), linestyle="-.", color="C0")
+# max_val_index = np.argmax(history["acc"])
+# max_val = history["acc"][max_val_index]
+# plt.scatter(max_val_index, history["acc"][max_val_index], marker="x", color="C0", label=("Max Train Acc: " + str(max_val.round(3))))
+# max_val_index = np.argmax(history["val_acc"])
+# max_val = history["val_acc"][max_val_index]
+# plt.scatter(max_val_index, history["val_acc"][max_val_index], marker="o", color="C0", label=("Max Val Acc: " + str(max_val.round(3))))
+
+# plt.title("Results")
+# plt.ylabel('accuracy')
+# plt.xlabel('epoch')
+# plt.legend(loc="lower right")
+# plt.ylim(0, 1.05)
+# plt.savefig("./images/" + "good_and_bad", bbox_inches="tight")
 # plt.show()
