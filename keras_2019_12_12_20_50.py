@@ -17,9 +17,7 @@ now = now.strftime("%Y_%m_%d_%H_%M")
 
 results_path = "./results/keras_" + now
 print("Saving results in:", results_path)
-
 print()
-import os
 try:
     os.mkdir(results_path)
 except OSError:
@@ -124,9 +122,9 @@ checkpoint_path = results_path + "/model/cp.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1)
 
-print("Training start date and time:", datetime.now())
+training_start_time = datetime.now()
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=300, shuffle=True, validation_data=(X_valid, y_valid), callbacks=[cp_callback])
-print("Training end date and time:", datetime.now())
+training_end_time = datetime.now()
 model.save(results_path + "/model/model.h5")
 
 with open(results_path + "/train_hist", "wb") as file:
